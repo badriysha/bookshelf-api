@@ -1,7 +1,7 @@
 const { nanoid } = require('nanoid');
 const books = require('./books');
 
-const addBook = (request, h) => {
+const addBookHandler = (request, h) => {
     const { name, year, author, summary, publisher, pageCount, readPage, reading } = request.payload;
     // create validation
     if (!name || name === '') {
@@ -52,7 +52,7 @@ const addBook = (request, h) => {
         .code(500);
 }
 
-const getAllBooks = (request, h) => {
+const getAllBooksHandler = (request, h) => {
     const { name, reading, finished } = request.query;
     let getBooks = books;
 
@@ -84,7 +84,7 @@ const getAllBooks = (request, h) => {
     .code(200);
 }
 
-getDetailBook = (request, h) => {
+getBookByIdHandler = (request, h) => {
     const { id } = request.params;
     const book = books.filter((book) => book.id === id)[0];
 
@@ -105,8 +105,56 @@ getDetailBook = (request, h) => {
         .code(404);
 }
 
+const updateBookByIdHandler = (request, h) => {
+    const { id } = request.params;
+    const { name, pageCount, readPage} = request.payload;
+
+    if (!name || name === '') {
+        return h
+            .response({
+                status: 'fail',
+                message: 'Gagal memperbarui buku. Mohon isi nama buku'
+            })
+            .code(400);
+    }
+    if (readPage > pageCount) {
+        return h
+            .response({
+                status: 'fail',
+                message: 'Gagal memperbarui buku. readPage tidak boleh lebih besar dari pageCount'
+            })
+            .code(400);
+    }
+
+    const updatedAt = new Date().toISOString();
+    const booksIndex = books.findIndex((book) => book.id === id);
+
+    if (booksIndex !== -1) {
+        books[booksIndex] = {
+            ...books[booksIndex],
+            ...request.payload,
+            updatedAt,
+        }
+
+        return h
+            .response({
+                status: 'success',
+                message: 'Buku berhasil diperbarui'
+            })
+            .code(200);
+    }
+
+    return h
+        .response({
+            status: 'fail',
+            message: 'Gagal memperbarui buku. Id tidak ditemukan'
+        })
+        .code(404);
+}
+
 module.exports = {
-    addBook,
-    getAllBooks,
-    getDetailBook,
+    addBookHandler,
+    getAllBooksHandler,
+    getBookByIdHandler,
+    updateBookByIdHandler,
 }
