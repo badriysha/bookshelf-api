@@ -1,7 +1,7 @@
 const { nanoid } = require('nanoid');
 const books = require('./books');
 
-const addBookHandler = (request, h) => {
+const addBook = (request, h) => {
     const { name, year, author, summary, publisher, pageCount, readPage, reading } = request.payload;
     // create validation
     if (!name || name === '') {
@@ -52,7 +52,7 @@ const addBookHandler = (request, h) => {
         .code(500);
 }
 
-const getAllBooksHandler = (request, h) => {
+const getAllBooks = (request, h) => {
     const { name, reading, finished } = request.query;
     let getBooks = books;
 
@@ -84,7 +84,29 @@ const getAllBooksHandler = (request, h) => {
     .code(200);
 }
 
+getDetailBook = (request, h) => {
+    const { id } = request.params;
+    const book = books.filter((book) => book.id === id)[0];
+
+    if (book !== undefined) {
+        return  {
+            status: 'success',
+            data: {
+                book,
+            },
+        }
+    }
+
+    return h
+        .response({
+            status: 'fail',
+            message: 'Buku tidak ditemukan'
+        })
+        .code(404);
+}
+
 module.exports = {
-    addBookHandler,
-    getAllBooksHandler,
+    addBook,
+    getAllBooks,
+    getDetailBook,
 }
