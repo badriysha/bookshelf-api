@@ -52,6 +52,39 @@ const addBookHandler = (request, h) => {
         .code(500);
 }
 
+const getAllBooksHandler = (request, h) => {
+    const { name, reading, finished } = request.query;
+    let getBooks = books;
+
+    if (name) {
+        getBooks = books.filter((book) => book.name.toLowerCase().includes(name.toLowerCase()));
+    }
+    if (reading) {
+        const hasReading = reading === "1";
+        getBooks = books.filter((book) => book.reading === hasReading);
+    }
+    if (finished) {
+        const hasFinished = finished === "1";
+        getBooks = books.filter((book) => book.finished === hasFinished);
+    }
+
+    return h
+    .response({
+        status: 'success',
+        data: {
+            books: getBooks.map((book) => {
+                return {
+                    id: book.id,
+                    name: book.name,
+                    publisher: book.publisher
+                }
+            }),
+        }
+    })
+    .code(200);
+}
+
 module.exports = {
     addBookHandler,
+    getAllBooksHandler,
 }
